@@ -2,7 +2,7 @@
 #define SETTINGS_H
 
 //Weather Settings
-#define CITY_ID "1796231" //New York City https://openweathermap.org/current#cityid
+#define CITY_ID "1796231" //Shanghai Shi https://openweathermap.org/current#cityid
 #define OPENWEATHERMAP_APIKEY "0d1949854101140caad159dc9a23ca86" //use your own API key :)
 #define OPENWEATHERMAP_URL "http://api.openweathermap.org/data/2.5/weather?id=" //open weather api
 #define TEMP_UNIT "metric" //metric = Celsius , imperial = Fahrenheit
