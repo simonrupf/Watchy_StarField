@@ -14,14 +14,13 @@
     #define OPENWEATHERMAP_URL "http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&lang={lang}&units={units}&appid={apiKey}" //open weather api using lat lon
 #endif
 
-#define OPENWEATHERMAP_APIKEY "0d1949854101140caad159dc9a23ca86" //use your own API key :)
+#define OPENWEATHERMAP_APIKEY "replace this string" //use your own API key :)
 #define TEMP_UNIT "metric" //metric = Celsius , imperial = Fahrenheit
 #define TEMP_LANG "en"
 #define WEATHER_UPDATE_INTERVAL 30 //must be greater than 5, measured in minutes
 //NTP Settings
 #define NTP_SERVER "pool.ntp.org"
 #define GMT_OFFSET_SEC 3600 * 8 //New York is UTC -5
-#define DST_OFFSET_SEC 3600
 
 watchySettings settings{
     #ifdef CITY_ID

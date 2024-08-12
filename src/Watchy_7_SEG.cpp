@@ -17,7 +17,7 @@ void Watchy7SEG::handleButtonPress()
     if (guiState == WATCHFACE_STATE)
     {
         uint64_t wakeupBit = esp_sleep_get_ext1_wakeup_status();
-        if (wakeupBit & UP_BTN_MASK) 
+        if (wakeupBit & UP_BTN_MASK)
         {
             // showState++;
             // if (showState > 2) { showState = 0; }
@@ -26,7 +26,7 @@ void Watchy7SEG::handleButtonPress()
             showWatchFace(true);
             return;
         }
-        if (wakeupBit & DOWN_BTN_MASK) 
+        if (wakeupBit & DOWN_BTN_MASK)
         {
             // showState--;
             // if (showState < 0) { showState = 2; }
@@ -35,19 +35,19 @@ void Watchy7SEG::handleButtonPress()
             showWatchFace(true);
             return;
         }
-        if (wakeupBit & BACK_BTN_MASK) 
+        if (wakeupBit & BACK_BTN_MASK)
         {
             DARKMODE = !DARKMODE;
             RTC.read(currentTime);
             showWatchFace(true);
             return;
-        } 
-        if (wakeupBit & MENU_BTN_MASK) 
+        }
+        if (wakeupBit & MENU_BTN_MASK)
         {
             Watchy::handleButtonPress();
             return;
         }
-    } 
+    }
     else {Watchy::handleButtonPress();}
     return;
 }
@@ -82,8 +82,8 @@ void Watchy7SEG::drawTime()
     // if(HOUR_SET==12)
     // {
     //     displayHour = ((currentTime.Hour+11)%12)+1;
-    // } 
-    // else 
+    // }
+    // else
     // {
     //     displayHour = currentTime.Hour;
     // }
@@ -205,7 +205,7 @@ void Watchy7SEG::drawTime()
         display.drawBitmap(155, 5, fd_8, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
     else if (d == 9)
         display.drawBitmap(155, 5, fd_9, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-        
+
 }
 
 void Watchy7SEG::drawDate()
@@ -603,7 +603,7 @@ void Watchy7SEG::drawFiel()
 
 void Watchy7SEG::drawMoon() {
     moonData_t moon;                        // variable to receive the data
-    
+
     // January 31st, 2020 @ 1:30PM UTC
     int year = currentTime.Year + 1970;
     int32_t month = currentTime.Month;
@@ -621,39 +621,48 @@ void Watchy7SEG::drawMoon() {
     // Waning: 180-360
     // display.setCursor(100, 74);
 
+    constexpr int16_t x = 131;
+    constexpr int16_t y = 74;
+    constexpr int16_t w = 61;
+    if (!DARKMODE)
+    {
+        constexpr int16_t r = w / 2;
+        display.fillCircle(x + r, y + r, r + 1, GxEPD_BLACK);
+    }
+
     if (ag <= 180)
     {
         if (lt < 0.1)
-            display.drawBitmap(131, 74, luna1, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna1, w, w, GxEPD_WHITE);
         else if (lt < 0.25)
-            display.drawBitmap(131, 74, luna12, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna12, w, w, GxEPD_WHITE);
         else if (lt < 0.4)
-            display.drawBitmap(131, 74, luna11, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna11, w, w, GxEPD_WHITE);
         else if (lt < 0.6)
-            display.drawBitmap(131, 74, luna10, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna10, w, w, GxEPD_WHITE);
         else if (lt < 0.75)
-            display.drawBitmap(131, 74, luna9, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna9, w, w, GxEPD_WHITE);
         else if (lt < 0.9)
-            display.drawBitmap(131, 74, luna8, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-        else 
-            display.drawBitmap(131, 74, luna7, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna8, w, w, GxEPD_WHITE);
+        else
+            display.drawBitmap(x, y, luna7, w, w, GxEPD_WHITE);
     }
     else
     {
         if (lt < 0.1)
-            display.drawBitmap(131, 74, luna1, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna1, w, w, GxEPD_WHITE);
         else if (lt < 0.25)
-            display.drawBitmap(131, 74, luna2, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna2, w, w, GxEPD_WHITE);
         else if (lt < 0.4)
-            display.drawBitmap(131, 74, luna3, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna3, w, w, GxEPD_WHITE);
         else if (lt < 0.6)
-            display.drawBitmap(131, 74, luna4, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna4, w, w, GxEPD_WHITE);
         else if (lt < 0.75)
-            display.drawBitmap(131, 74, luna5, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna5, w, w, GxEPD_WHITE);
         else if (lt < 0.9)
-            display.drawBitmap(131, 74, luna6, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-        else 
-            display.drawBitmap(131, 74, luna7, 61, 61, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+            display.drawBitmap(x, y, luna6, w, w, GxEPD_WHITE);
+        else
+            display.drawBitmap(x, y, luna7, w, w, GxEPD_WHITE);
     }
 
     // display.print(year);
@@ -673,10 +682,11 @@ void Watchy7SEG::drawMoon() {
 
 void Watchy7SEG::drawSun() {
     weatherData currentWeather = getWeatherData();
-    int sr = currentWeather.sunrise.Hour * 60 + currentWeather.sunrise.Minute;
-    int ss = currentWeather.sunset.Hour * 60 + currentWeather.sunset.Minute;
+    int tz = settings.gmtOffset / 3600l + 1; // + 1 for DST - need to discover this somehow
+    int sr = (currentWeather.sunrise.Hour + tz) * 60 + currentWeather.sunrise.Minute;
+    int ss = (currentWeather.sunset.Hour + tz) * 60 + currentWeather.sunset.Minute;
 
-    long k = currentTime.Hour * 60 + currentTime.Minute;
+    long k = (currentTime.Hour + tz) * 60 + currentTime.Minute;
     int tk = (k - sr) * 60 / (ss - sr);
     if (k > ss)
         tk = 60;
