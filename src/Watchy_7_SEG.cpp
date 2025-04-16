@@ -9,6 +9,8 @@
 RTC_DATA_ATTR bool DARKMODE = false;
 // RTC_DATA_ATTR int showState = 0;
 RTC_DATA_ATTR bool HOUR_SET = true;
+RTC_DATA_ATTR uint16_t FRONT_COLOR = GxEPD_BLACK;
+RTC_DATA_ATTR uint16_t BACKG_COLOR = GxEPD_WHITE;
 
 moonPhaser moonP;
 
@@ -38,6 +40,8 @@ void Watchy7SEG::handleButtonPress()
         if (wakeupBit & BACK_BTN_MASK)
         {
             DARKMODE = !DARKMODE;
+            FRONT_COLOR = DARKMODE ? GxEPD_WHITE : GxEPD_BLACK;
+            BACKG_COLOR = DARKMODE ? GxEPD_BLACK : GxEPD_WHITE;
             RTC.read(currentTime);
             showWatchFace(true);
             return;
@@ -54,8 +58,8 @@ void Watchy7SEG::handleButtonPress()
 
 void Watchy7SEG::drawWatchFace()
 {
-    display.fillScreen(DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
-    display.setTextColor(DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    display.fillScreen(BACKG_COLOR);
+    display.setTextColor(FRONT_COLOR);
     drawFiel ();
     drawTime();
     drawDate();
@@ -65,10 +69,10 @@ void Watchy7SEG::drawWatchFace()
     // drawEva();
     // drawLine();
 
-    display.drawBitmap(118, 168, WIFI_CONFIGURED ? wifi : wifioff, 25, 18, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    display.drawBitmap(118, 168, WIFI_CONFIGURED ? wifi : wifioff, 25, 18, FRONT_COLOR);
     // if(BLE_CONFIGURED)
     // {
-    //     display.drawBitmap(100, 75, bluetooth, 13, 21, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    //     display.drawBitmap(100, 75, bluetooth, 13, 21, FRONT_COLOR);
     // }
     drawMoon();
     drawSun();
@@ -98,113 +102,37 @@ void Watchy7SEG::drawTime()
     //     display.print("0");
     // }
     // display.println(currentTime.Minute);
-    long ss = currentTime.Hour * 60 + currentTime.Minute;
+    const long ss = currentTime.Hour * 60 + currentTime.Minute;
     int sh = ss / 60;
 
-    if (HOUR_SET == false && sh >= 12)
+    if (HOUR_SET == false)
     {
-        display.fillRect(7, 60, 25, 9, DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
-        display.drawBitmap(7, 60, pm, 25, 9, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+        if (sh >= 12)
+        {
+            display.fillRect(7, 60, 25, 9, FRONT_COLOR);
+            display.drawBitmap(7, 60, pm, 25, 9, FRONT_COLOR);
+
+            if (sh > 12)
+            {
+                sh -= 12;
+            }
+        }
+        else if (sh < 12)
+        {
+            display.fillRect(7, 60, 25, 9, BACKG_COLOR);
+            display.drawBitmap(7, 60, am, 25, 9, FRONT_COLOR);
+        }
     }
-    else if (HOUR_SET == false && sh < 12)
-    {
-        display.fillRect(7, 60, 25, 9, DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
-        display.drawBitmap(7, 60, am, 25, 9, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    }
+    const int8_t sm = ss % 60;
+    const int8_t a = sh >= 10 ? sh / 10 : 0;
+    const int8_t b = sh % 10;
+    const int8_t c = sm >= 10 ? sm / 10 : 0;
+    const int8_t d = sm % 10;
 
-    if (HOUR_SET == false && sh > 12)
-    {
-        sh -= 12;
-    }
-    int sm = ss % 60;
-    int a = sh >= 10 ? sh / 10 : 0;
-    int b = sh % 10;
-    int c = sm >= 10 ? sm / 10 : 0;
-    int d = sm % 10;
-
-    if (a == 0)
-        display.drawBitmap(11, 5, fd_0, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 1)
-        display.drawBitmap(11, 5, fd_1, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 2)
-        display.drawBitmap(11, 5, fd_2, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 3)
-        display.drawBitmap(11, 5, fd_3, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 4)
-        display.drawBitmap(11, 5, fd_4, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 5)
-        display.drawBitmap(11, 5, fd_5, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 6)
-        display.drawBitmap(11, 5, fd_6, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 7)
-        display.drawBitmap(11, 5, fd_7, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 8)
-        display.drawBitmap(11, 5, fd_8, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 9)
-        display.drawBitmap(11, 5, fd_9, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (b == 0)
-        display.drawBitmap(55, 5, fd_0, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 1)
-        display.drawBitmap(55, 5, fd_1, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 2)
-        display.drawBitmap(55, 5, fd_2, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 3)
-        display.drawBitmap(55, 5, fd_3, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 4)
-        display.drawBitmap(55, 5, fd_4, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 5)
-        display.drawBitmap(55, 5, fd_5, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 6)
-        display.drawBitmap(55, 5, fd_6, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 7)
-        display.drawBitmap(55, 5, fd_7, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 8)
-        display.drawBitmap(55, 5, fd_8, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 9)
-        display.drawBitmap(55, 5, fd_9, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (c == 0)
-        display.drawBitmap(111, 5, fd_0, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 1)
-        display.drawBitmap(111, 5, fd_1, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 2)
-        display.drawBitmap(111, 5, fd_2, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 3)
-        display.drawBitmap(111, 5, fd_3, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 4)
-        display.drawBitmap(111, 5, fd_4, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 5)
-        display.drawBitmap(111, 5, fd_5, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 6)
-        display.drawBitmap(111, 5, fd_6, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 7)
-        display.drawBitmap(111, 5, fd_7, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 8)
-        display.drawBitmap(111, 5, fd_8, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 9)
-        display.drawBitmap(111, 5, fd_9, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (d == 0)
-        display.drawBitmap(155, 5, fd_0, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 1)
-        display.drawBitmap(155, 5, fd_1, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 2)
-        display.drawBitmap(155, 5, fd_2, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 3)
-        display.drawBitmap(155, 5, fd_3, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 4)
-        display.drawBitmap(155, 5, fd_4, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 5)
-        display.drawBitmap(155, 5, fd_5, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 6)
-        display.drawBitmap(155, 5, fd_6, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 7)
-        display.drawBitmap(155, 5, fd_7, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 8)
-        display.drawBitmap(155, 5, fd_8, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 9)
-        display.drawBitmap(155, 5, fd_9, 33, 53, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    display.drawBitmap(11,  5, getFdImg(a), 33, 53, FRONT_COLOR);
+    display.drawBitmap(55,  5, getFdImg(b), 33, 53, FRONT_COLOR);
+    display.drawBitmap(111, 5, getFdImg(c), 33, 53, FRONT_COLOR);
+    display.drawBitmap(155, 5, getFdImg(d), 33, 53, FRONT_COLOR);
 
 }
 
@@ -240,144 +168,24 @@ void Watchy7SEG::drawDate()
     // display.setCursor(6, 154);
     // display.println(tmYearToCalendar(currentTime.Year));// offset from 1970, since year is stored in uint8_t
 
-    int da = currentTime.Day;
+    const int da = currentTime.Day;
     int ye = currentTime.Year + 1970;
 
-    int a = da / 10;
-    int b = da % 10;
-    int c = ye / 1000;
+    const int8_t a = da / 10;
+    const int8_t b = da % 10;
+    const int8_t c = ye / 1000;
     ye = ye % 1000;
-    int d = ye / 100;
+    const int8_t d = ye / 100;
     ye = ye % 100;
-    int e = ye / 10;
-    ye = ye % 10;
-    int f = ye;
+    const int8_t e = ye / 10;
+    const int8_t f = ye % 10;
 
-    if (a == 0)
-        display.drawBitmap(8, 95, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 1)
-        display.drawBitmap(8, 95, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 2)
-        display.drawBitmap(8, 95, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 3)
-        display.drawBitmap(8, 95, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 4)
-        display.drawBitmap(8, 95, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 5)
-        display.drawBitmap(8, 95, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 6)
-        display.drawBitmap(8, 95, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 7)
-        display.drawBitmap(8, 95, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 8)
-        display.drawBitmap(8, 95, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 9)
-        display.drawBitmap(8, 95, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (b == 0)
-        display.drawBitmap(29, 95, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 1)
-        display.drawBitmap(29, 95, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 2)
-        display.drawBitmap(29, 95, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 3)
-        display.drawBitmap(29, 95, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 4)
-        display.drawBitmap(29, 95, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 5)
-        display.drawBitmap(29, 95, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 6)
-        display.drawBitmap(29, 95, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 7)
-        display.drawBitmap(29, 95, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 8)
-        display.drawBitmap(29, 95, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 9)
-        display.drawBitmap(29, 95, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (c == 0)
-        display.drawBitmap(8, 129, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 1)
-        display.drawBitmap(8, 129, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 2)
-        display.drawBitmap(8, 129, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 3)
-        display.drawBitmap(8, 129, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 4)
-        display.drawBitmap(8, 129, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 5)
-        display.drawBitmap(8, 129, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 6)
-        display.drawBitmap(8, 129, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 7)
-        display.drawBitmap(8, 129, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 8)
-        display.drawBitmap(8, 129, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 9)
-        display.drawBitmap(8, 129, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (d == 0)
-        display.drawBitmap(29, 129, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 1)
-        display.drawBitmap(29, 129, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 2)
-        display.drawBitmap(29, 129, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 3)
-        display.drawBitmap(29, 129, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 4)
-        display.drawBitmap(29, 129, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 5)
-        display.drawBitmap(29, 129, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 6)
-        display.drawBitmap(29, 129, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 7)
-        display.drawBitmap(29, 129, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 8)
-        display.drawBitmap(29, 129, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 9)
-        display.drawBitmap(29, 129, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (e == 0)
-        display.drawBitmap(50, 129, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 1)
-        display.drawBitmap(50, 129, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 2)
-        display.drawBitmap(50, 129, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 3)
-        display.drawBitmap(50, 129, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 4)
-        display.drawBitmap(50, 129, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 5)
-        display.drawBitmap(50, 129, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 6)
-        display.drawBitmap(50, 129, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 7)
-        display.drawBitmap(50, 129, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 8)
-        display.drawBitmap(50, 129, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 9)
-        display.drawBitmap(50, 129, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (f == 0)
-        display.drawBitmap(71, 129, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 1)
-        display.drawBitmap(71, 129, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 2)
-        display.drawBitmap(71, 129, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 3)
-        display.drawBitmap(71, 129, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 4)
-        display.drawBitmap(71, 129, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 5)
-        display.drawBitmap(71, 129, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 6)
-        display.drawBitmap(71, 129, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 7)
-        display.drawBitmap(71, 129, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 8)
-        display.drawBitmap(71, 129, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 9)
-        display.drawBitmap(71, 129, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    display.drawBitmap(8,  95,  getDdImg(a), 16, 25, FRONT_COLOR);
+    display.drawBitmap(29, 95,  getDdImg(b), 16, 25, FRONT_COLOR);
+    display.drawBitmap(8,  129, getDdImg(c), 16, 25, FRONT_COLOR);
+    display.drawBitmap(29, 129, getDdImg(d), 16, 25, FRONT_COLOR);
+    display.drawBitmap(50, 129, getDdImg(e), 16, 25, FRONT_COLOR);
+    display.drawBitmap(71, 129, getDdImg(f), 16, 25, FRONT_COLOR);
 
 }
 void Watchy7SEG::drawSteps()
@@ -394,7 +202,7 @@ void Watchy7SEG::drawSteps()
     }
     uint32_t stepCount = sensor.getCounter();
 
-    // display.drawBitmap(10, 165, steps, 19, 23, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    // display.drawBitmap(10, 165, steps, 19, 23, FRONT_COLOR);
     // display.setCursor(6, 190);
     // if (stepCount >= 10000)
     //     ;
@@ -419,134 +227,33 @@ void Watchy7SEG::drawSteps()
         l5 = 61;
     }
 
-    // display.fillRect(125, 73 + 61 - l1, 9, l4, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    // display.fillRect(143, 73 + 61 - l1, 9, l3, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    // display.fillRect(161, 73 + 61 - l1, 9, l2, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    // display.fillRect(179, 73 + 61 - l1, 9, l1, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    display.fillRect(131, 148, l5, 9, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    // display.fillRect(125, 73 + 61 - l1, 9, l4, FRONT_COLOR);
+    // display.fillRect(143, 73 + 61 - l1, 9, l3, FRONT_COLOR);
+    // display.fillRect(161, 73 + 61 - l1, 9, l2, FRONT_COLOR);
+    // display.fillRect(179, 73 + 61 - l1, 9, l1, FRONT_COLOR);
+    display.fillRect(131, 148, l5, 9, FRONT_COLOR);
     // display.
 
-    int a = stepCount / 10000;
+    const int8_t a = stepCount / 10000;
     stepCount = stepCount % 10000;
-    int b = stepCount / 1000;
+    const int8_t b = stepCount / 1000;
     stepCount = stepCount % 1000;
-    int c = stepCount / 100;
+    const int8_t c = stepCount / 100;
     stepCount = stepCount % 100;
-    int d = stepCount / 10;
-    int e = stepCount % 10;
+    const int8_t d = stepCount / 10;
+    const int8_t e = stepCount % 10;
 
-    if (a == 0)
-        display.drawBitmap(8, 165, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 1)
-        display.drawBitmap(8, 165, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 2)
-        display.drawBitmap(8, 165, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 3)
-        display.drawBitmap(8, 165, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 4)
-        display.drawBitmap(8, 165, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 5)
-        display.drawBitmap(8, 165, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 6)
-        display.drawBitmap(8, 165, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 7)
-        display.drawBitmap(8, 165, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 8)
-        display.drawBitmap(8, 165, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 9)
-        display.drawBitmap(8, 165, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (b == 0)
-        display.drawBitmap(29, 165, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 1)
-        display.drawBitmap(29, 165, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 2)
-        display.drawBitmap(29, 165, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 3)
-        display.drawBitmap(29, 165, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 4)
-        display.drawBitmap(29, 165, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 5)
-        display.drawBitmap(29, 165, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 6)
-        display.drawBitmap(29, 165, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 7)
-        display.drawBitmap(29, 165, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 8)
-        display.drawBitmap(29, 165, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 9)
-        display.drawBitmap(29, 165, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (c == 0)
-        display.drawBitmap(50, 165, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 1)
-        display.drawBitmap(50, 165, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 2)
-        display.drawBitmap(50, 165, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 3)
-        display.drawBitmap(50, 165, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 4)
-        display.drawBitmap(50, 165, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 5)
-        display.drawBitmap(50, 165, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 6)
-        display.drawBitmap(50, 165, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 7)
-        display.drawBitmap(50, 165, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 8)
-        display.drawBitmap(50, 165, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 9)
-        display.drawBitmap(50, 165, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (d == 0)
-        display.drawBitmap(71, 165, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 1)
-        display.drawBitmap(71, 165, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 2)
-        display.drawBitmap(71, 165, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 3)
-        display.drawBitmap(71, 165, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 4)
-        display.drawBitmap(71, 165, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 5)
-        display.drawBitmap(71, 165, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 6)
-        display.drawBitmap(71, 165, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 7)
-        display.drawBitmap(71, 165, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 8)
-        display.drawBitmap(71, 165, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 9)
-        display.drawBitmap(71, 165, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (e == 0)
-        display.drawBitmap(92, 165, dd_0, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 1)
-        display.drawBitmap(92, 165, dd_1, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 2)
-        display.drawBitmap(92, 165, dd_2, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 3)
-        display.drawBitmap(92, 165, dd_3, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 4)
-        display.drawBitmap(92, 165, dd_4, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 5)
-        display.drawBitmap(92, 165, dd_5, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 6)
-        display.drawBitmap(92, 165, dd_6, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 7)
-        display.drawBitmap(92, 165, dd_7, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 8)
-        display.drawBitmap(92, 165, dd_8, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 9)
-        display.drawBitmap(92, 165, dd_9, 16, 25, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-
+    display.drawBitmap(8,  165, getDdImg(a), 16, 25, FRONT_COLOR);
+    display.drawBitmap(29, 165, getDdImg(b), 16, 25, FRONT_COLOR);
+    display.drawBitmap(50, 165, getDdImg(c), 16, 25, FRONT_COLOR);
+    display.drawBitmap(71, 165, getDdImg(d), 16, 25, FRONT_COLOR);
+    display.drawBitmap(92, 165, getDdImg(e), 16, 25, FRONT_COLOR);
 
 }
 void Watchy7SEG::drawBattery()
 {
-    // display.drawBitmap(154, 73, battery, 37, 21, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    // display.fillRect(159, 78, 27, BATTERY_SEGMENT_HEIGHT, DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);//clear battery segments
+    // display.drawBitmap(154, 73, battery, 37, 21, FRONT_COLOR);
+    // display.fillRect(159, 78, 27, BATTERY_SEGMENT_HEIGHT, BACKG_COLOR);//clear battery segments
     int8_t batteryLevel = 0;
     float VBAT = getBatteryVoltage();
     if(VBAT > 4.1)
@@ -589,7 +296,7 @@ void Watchy7SEG::drawBattery()
 
     // for(int8_t batterySegments = 0; batterySegments < batteryLevel; batterySegments++)
     // {
-        display.fillRect(155, 169, batteryLevel, 15, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+        display.fillRect(155, 169, batteryLevel, 15, FRONT_COLOR);
     // }
 }
 
@@ -597,7 +304,7 @@ void Watchy7SEG::drawBattery()
 
 void Watchy7SEG::drawFiel()
 {
-    display.drawBitmap(0, 0, field, 200, 200, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    display.drawBitmap(0, 0, field, 200, 200, FRONT_COLOR);
 }
 
 
@@ -683,208 +390,52 @@ void Watchy7SEG::drawMoon() {
 void Watchy7SEG::drawSun() {
     weatherData currentWeather = getWeatherData();
     int tz = settings.gmtOffset / 3600l + 1; // + 1 for DST - need to discover this somehow
-    int sr = (currentWeather.sunrise.Hour + tz) * 60 + currentWeather.sunrise.Minute;
-    int ss = (currentWeather.sunset.Hour + tz) * 60 + currentWeather.sunset.Minute;
 
-    long k = (currentTime.Hour + tz) * 60 + currentTime.Minute;
+    int rh = currentWeather.sunrise.Hour + tz;
+    int rm = currentWeather.sunrise.Minute;
+    int sh = currentWeather.sunset.Hour + tz;
+    int sm = currentWeather.sunset.Minute;
+
+    if (HOUR_SET == false) {
+        if (rh > 12)
+        {
+            rh -= 12;
+        }
+
+        if (sh > 12)
+        {
+            sh -= 12;
+        }
+    }
+
+    const int sr = rh * 60 + rm;
+    const int ss = sh * 60 + sm;
+
+    long k = (currentTime.Hour + tz - 1) * 60 + currentTime.Minute;
     int tk = (k - sr) * 60 / (ss - sr);
     if (k > ss)
         tk = 60;
     else if (k < sr)
         tk = 0;
-    display.drawBitmap(110, 132 - tk, arr, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    display.drawBitmap(110, 132 - tk, arr, 3, 5, FRONT_COLOR);
 
-    int rh = sr / 60;
-    int rm = sr % 60;
-    int sh = ss / 60;
-    int sm = ss % 60;
+    const int8_t a = sh >= 10 ? sh / 10 : 0;
+    const int8_t b = sh % 10;
+    const int8_t c = sm >= 10 ? sm / 10 : 0;
+    const int8_t d = sm % 10;
+    const int8_t e = rh >= 10 ? rh / 10 : 0;
+    const int8_t f = rh % 10;
+    const int8_t g = rm >= 10 ? rm / 10 : 0;
+    const int8_t h = rm % 10;
 
-    if (HOUR_SET == false && rh > 12)
-    {
-        rh -= 12;
-    }
-
-    if (HOUR_SET == false && sh >12)
-    {
-        sh -= 12;
-    }
-
-    int a = sh >= 10 ? sh / 10 : 0;
-    int b = sh % 10;
-    int c = sm >= 10 ? sm / 10 : 0;
-    int d = sm % 10;
-    int e = rh >= 10 ? rh / 10 : 0;
-    int f = rh % 10;
-    int g = rm >= 10 ? rm / 10 : 0;
-    int h = rm % 10;
-
-    if (a == 0)
-        display.drawBitmap(116, 67, num_0, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 1)
-        display.drawBitmap(116, 67, num_1, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 2)
-        display.drawBitmap(116, 67, num_2, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 3)
-        display.drawBitmap(116, 67, num_3, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 4)
-        display.drawBitmap(116, 67, num_4, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 5)
-        display.drawBitmap(116, 67, num_5, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 6)
-        display.drawBitmap(116, 67, num_6, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 7)
-        display.drawBitmap(116, 67, num_7, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 8)
-        display.drawBitmap(116, 67, num_8, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (a == 9)
-        display.drawBitmap(116, 67, num_9, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (b == 0)
-        display.drawBitmap(120, 67, num_0, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 1)
-        display.drawBitmap(120, 67, num_1, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 2)
-        display.drawBitmap(120, 67, num_2, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 3)
-        display.drawBitmap(120, 67, num_3, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 4)
-        display.drawBitmap(120, 67, num_4, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 5)
-        display.drawBitmap(120, 67, num_5, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 6)
-        display.drawBitmap(120, 67, num_6, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 7)
-        display.drawBitmap(120, 67, num_7, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 8)
-        display.drawBitmap(120, 67, num_8, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (b == 9)
-        display.drawBitmap(120, 67, num_9, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (c == 0)
-        display.drawBitmap(128, 67, num_0, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 1)
-        display.drawBitmap(128, 67, num_1, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 2)
-        display.drawBitmap(128, 67, num_2, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 3)
-        display.drawBitmap(128, 67, num_3, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 4)
-        display.drawBitmap(128, 67, num_4, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 5)
-        display.drawBitmap(128, 67, num_5, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 6)
-        display.drawBitmap(128, 67, num_6, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 7)
-        display.drawBitmap(128, 67, num_7, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 8)
-        display.drawBitmap(128, 67, num_8, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (c == 9)
-        display.drawBitmap(128, 67, num_9, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (d == 0)
-        display.drawBitmap(132, 67, num_0, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 1)
-        display.drawBitmap(132, 67, num_1, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 2)
-        display.drawBitmap(132, 67, num_2, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 3)
-        display.drawBitmap(132, 67, num_3, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 4)
-        display.drawBitmap(132, 67, num_4, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 5)
-        display.drawBitmap(132, 67, num_5, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 6)
-        display.drawBitmap(132, 67, num_6, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 7)
-        display.drawBitmap(132, 67, num_7, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 8)
-        display.drawBitmap(132, 67, num_8, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (d == 9)
-        display.drawBitmap(132, 67, num_9, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (e == 0)
-        display.drawBitmap(116, 137, num_0, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 1)
-        display.drawBitmap(116, 137, num_1, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 2)
-        display.drawBitmap(116, 137, num_2, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 3)
-        display.drawBitmap(116, 137, num_3, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 4)
-        display.drawBitmap(116, 137, num_4, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 5)
-        display.drawBitmap(116, 137, num_5, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 6)
-        display.drawBitmap(116, 137, num_6, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 7)
-        display.drawBitmap(116, 137, num_7, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 8)
-        display.drawBitmap(116, 137, num_8, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (e == 9)
-        display.drawBitmap(116, 137, num_9, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (f == 0)
-        display.drawBitmap(120, 137, num_0, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 1)
-        display.drawBitmap(120, 137, num_1, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 2)
-        display.drawBitmap(120, 137, num_2, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 3)
-        display.drawBitmap(120, 137, num_3, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 4)
-        display.drawBitmap(120, 137, num_4, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 5)
-        display.drawBitmap(120, 137, num_5, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 6)
-        display.drawBitmap(120, 137, num_6, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 7)
-        display.drawBitmap(120, 137, num_7, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 8)
-        display.drawBitmap(120, 137, num_8, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (f == 9)
-        display.drawBitmap(120, 137, num_9, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (g == 0)
-        display.drawBitmap(128, 137, num_0, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (g == 1)
-        display.drawBitmap(128, 137, num_1, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (g == 2)
-        display.drawBitmap(128, 137, num_2, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (g == 3)
-        display.drawBitmap(128, 137, num_3, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (g == 4)
-        display.drawBitmap(128, 137, num_4, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (g == 5)
-        display.drawBitmap(128, 137, num_5, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (g == 6)
-        display.drawBitmap(128, 137, num_6, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (g == 7)
-        display.drawBitmap(128, 137, num_7, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (g == 8)
-        display.drawBitmap(128, 137, num_8, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (g == 9)
-        display.drawBitmap(128, 137, num_9, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-
-    if (h == 0)
-        display.drawBitmap(132, 137, num_0, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (h == 1)
-        display.drawBitmap(132, 137, num_1, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (h == 2)
-        display.drawBitmap(132, 137, num_2, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (h == 3)
-        display.drawBitmap(132, 137, num_3, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (h == 4)
-        display.drawBitmap(132, 137, num_4, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (h == 5)
-        display.drawBitmap(132, 137, num_5, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (h == 6)
-        display.drawBitmap(132, 137, num_6, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (h == 7)
-        display.drawBitmap(132, 137, num_7, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (h == 8)
-        display.drawBitmap(132, 137, num_8, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-    else if (h == 9)
-        display.drawBitmap(132, 137, num_9, 3, 5, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    display.drawBitmap(116, 67,  getNumImg(a), 3, 5, FRONT_COLOR);
+    display.drawBitmap(120, 67,  getNumImg(b), 3, 5, FRONT_COLOR);
+    display.drawBitmap(128, 67,  getNumImg(c), 3, 5, FRONT_COLOR);
+    display.drawBitmap(132, 67,  getNumImg(d), 3, 5, FRONT_COLOR);
+    display.drawBitmap(116, 137, getNumImg(e), 3, 5, FRONT_COLOR);
+    display.drawBitmap(120, 137, getNumImg(f), 3, 5, FRONT_COLOR);
+    display.drawBitmap(128, 137, getNumImg(g), 3, 5, FRONT_COLOR);
+    display.drawBitmap(132, 137, getNumImg(h), 3, 5, FRONT_COLOR);
 }
 
 //void Watchy7SEG::drawWeather()
@@ -910,7 +461,7 @@ void Watchy7SEG::drawSun() {
 //        display.setCursor(159 - w - x1, 136);
 //    }
 //    display.println(temperature);
-//    display.drawBitmap(165, 110, currentWeather.isMetric ? celsius : fahrenheit, 26, 20, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+//    display.drawBitmap(165, 110, currentWeather.isMetric ? celsius : fahrenheit, 26, 20, FRONT_COLOR);
 //    const unsigned char* weatherIcon;
 //
 //    //https://openweathermap.org/weather-conditions
@@ -956,15 +507,100 @@ void Watchy7SEG::drawSun() {
 //    }
 //    else
 //        return;
-//    display.drawBitmap(145, 158, weatherIcon, WEATHER_ICON_WIDTH, WEATHER_ICON_HEIGHT, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+//    display.drawBitmap(145, 158, weatherIcon, WEATHER_ICON_WIDTH, WEATHER_ICON_HEIGHT, FRONT_COLOR);
 //}
 
 // void Watchy7SEG::drawEva()
 // {
-//     display.drawBitmap(105, 100, eva, 100, 100, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+//     display.drawBitmap(105, 100, eva, 100, 100, FRONT_COLOR);
 // }
 
 // void Watchy7SEG::drawLine()
 // {
-//     display.drawBitmap(100, 72, line, 1, 77, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+//     display.drawBitmap(100, 72, line, 1, 77, FRONT_COLOR);
 // }
+
+const unsigned char *Watchy7SEG::getFdImg(int8_t digit)
+{
+    switch(digit)
+    {
+        case 0:
+            return fd_0;
+        case 1:
+            return fd_1;
+        case 2:
+            return fd_2;
+        case 3:
+            return fd_3;
+        case 4:
+            return fd_4;
+        case 5:
+            return fd_5;
+        case 6:
+            return fd_6;
+        case 7:
+            return fd_7;
+        case 8:
+            return fd_8;
+        case 9:
+            return fd_9;
+        default:
+            return nullptr;
+    }
+}
+const unsigned char *Watchy7SEG::getDdImg(int8_t digit)
+{
+    switch(digit)
+    {
+        case 0:
+            return dd_0;
+        case 1:
+            return dd_1;
+        case 2:
+            return dd_2;
+        case 3:
+            return dd_3;
+        case 4:
+            return dd_4;
+        case 5:
+            return dd_5;
+        case 6:
+            return dd_6;
+        case 7:
+            return dd_7;
+        case 8:
+            return dd_8;
+        case 9:
+            return dd_9;
+        default:
+            return nullptr;
+    }
+}
+const unsigned char *Watchy7SEG::getNumImg(int8_t digit)
+{
+    switch(digit)
+    {
+        case 0:
+            return num_0;
+        case 1:
+            return num_1;
+        case 2:
+            return num_2;
+        case 3:
+            return num_3;
+        case 4:
+            return num_4;
+        case 5:
+            return num_5;
+        case 6:
+            return num_6;
+        case 7:
+            return num_7;
+        case 8:
+            return num_8;
+        case 9:
+            return num_9;
+        default:
+            return nullptr;
+    }
+}
