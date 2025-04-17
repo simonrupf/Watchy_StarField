@@ -22,7 +22,7 @@ class WatchyStarField : public Watchy{
         static const unsigned char *getFdImg(int8_t digit);
         static const unsigned char *getDdImg(int8_t digit);
         static const unsigned char *getNumImg(int8_t digit);
-
+        static const unsigned char *getLunaImg(const moonData_t *moon);
 };
 
 #endif

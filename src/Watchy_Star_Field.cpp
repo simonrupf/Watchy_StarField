@@ -211,65 +211,24 @@ void WatchyStarField::drawBattery()
 }
 
 void WatchyStarField::drawMoon() {
-    moonData_t moon;                        // variable to receive the data
+    constexpr int16_t x = 131;
+    constexpr int16_t y = 74;
+    constexpr int16_t w = 61;
+    constexpr int16_t r = w / 2;
 
     int year = currentTime.Year + 1970;
     int32_t month = currentTime.Month;
     int32_t day = currentTime.Day;
     double hour = currentTime.Hour + 0.1;
 
-    moon = moonP.getPhase(year, month, day, hour);
-
-    int ag = moon.angle;
-    double lt = moon.percentLit;
-
-
-    constexpr int16_t x = 131;
-    constexpr int16_t y = 74;
-    constexpr int16_t w = 61;
+    moonData_t moon = moonP.getPhase(year, month, day, hour);
 
     if (!DARKMODE)
     {
-        constexpr int16_t r = w / 2;
         display.fillCircle(x + r, y + r, r + 1, GxEPD_BLACK);
     }
 
-    // Waxing: 0-180
-    // Waning: 180-360
-    if (ag <= 180)
-    {
-        if (lt < 0.1)
-            display.drawBitmap(x, y, luna1, w, w, GxEPD_WHITE);
-        else if (lt < 0.25)
-            display.drawBitmap(x, y, luna12, w, w, GxEPD_WHITE);
-        else if (lt < 0.4)
-            display.drawBitmap(x, y, luna11, w, w, GxEPD_WHITE);
-        else if (lt < 0.6)
-            display.drawBitmap(x, y, luna10, w, w, GxEPD_WHITE);
-        else if (lt < 0.75)
-            display.drawBitmap(x, y, luna9, w, w, GxEPD_WHITE);
-        else if (lt < 0.9)
-            display.drawBitmap(x, y, luna8, w, w, GxEPD_WHITE);
-        else
-            display.drawBitmap(x, y, luna7, w, w, GxEPD_WHITE);
-    }
-    else
-    {
-        if (lt < 0.1)
-            display.drawBitmap(x, y, luna1, w, w, GxEPD_WHITE);
-        else if (lt < 0.25)
-            display.drawBitmap(x, y, luna2, w, w, GxEPD_WHITE);
-        else if (lt < 0.4)
-            display.drawBitmap(x, y, luna3, w, w, GxEPD_WHITE);
-        else if (lt < 0.6)
-            display.drawBitmap(x, y, luna4, w, w, GxEPD_WHITE);
-        else if (lt < 0.75)
-            display.drawBitmap(x, y, luna5, w, w, GxEPD_WHITE);
-        else if (lt < 0.9)
-            display.drawBitmap(x, y, luna6, w, w, GxEPD_WHITE);
-        else
-            display.drawBitmap(x, y, luna7, w, w, GxEPD_WHITE);
-    }
+    display.drawBitmap(x, y, getLunaImg(&moon), w, w, GxEPD_WHITE);
 }
 
 void WatchyStarField::drawSun() {
@@ -402,4 +361,25 @@ const unsigned char *WatchyStarField::getNumImg(int8_t digit)
         default:
             return num_0;
     }
+}
+
+const unsigned char *WatchyStarField::getLunaImg(const moonData_t *moon)
+{
+    // Waxing: 0-180
+    // Waning: 180-360
+    const double percentLit = moon->percentLit;
+    if (percentLit < 0.1)
+        return luna1;
+    else if (percentLit < 0.25)
+        return moon->angle <= 180 ? luna12 : luna2;
+    else if (percentLit < 0.4)
+        return moon->angle <= 180 ? luna11 : luna3;
+    else if (percentLit < 0.6)
+        return moon->angle <= 180 ? luna10 : luna4;
+    else if (percentLit < 0.75)
+        return moon->angle <= 180 ? luna9  : luna5;
+    else if (percentLit < 0.9)
+        return moon->angle <= 180 ? luna8  : luna6;
+    else
+        return luna7;
 }
