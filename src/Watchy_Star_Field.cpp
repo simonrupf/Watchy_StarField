@@ -1,4 +1,4 @@
-#include "Watchy_7_SEG.h"
+#include "Watchy_Star_Field.h"
 
 // DARKMODE
 RTC_DATA_ATTR bool DARKMODE = false;
@@ -9,7 +9,7 @@ RTC_DATA_ATTR uint16_t BACKG_COLOR = GxEPD_WHITE;
 
 moonPhaser moonP;
 
-void Watchy7SEG::handleButtonPress()
+void WatchyStarField::handleButtonPress()
 {
     if (guiState == WATCHFACE_STATE)
     {
@@ -42,7 +42,7 @@ void Watchy7SEG::handleButtonPress()
     else {Watchy::handleButtonPress();}
 }
 
-void Watchy7SEG::drawWatchFace()
+void WatchyStarField::drawWatchFace()
 {
     display.fillScreen(BACKG_COLOR);
     display.setTextColor(FRONT_COLOR);
@@ -57,7 +57,7 @@ void Watchy7SEG::drawWatchFace()
     drawSun();
 }
 
-void Watchy7SEG::drawTime()
+void WatchyStarField::drawTime()
 {
     display.setFont(&DSEG7_Classic_Bold_53);
     display.setCursor(6, 53+5);
@@ -94,7 +94,7 @@ void Watchy7SEG::drawTime()
     display.drawBitmap(155, 5, getFdImg(d), 33, 53, FRONT_COLOR);
 }
 
-void Watchy7SEG::drawDate()
+void WatchyStarField::drawDate()
 {
     display.setFont(&Seven_Segment10pt7b);
 
@@ -136,7 +136,7 @@ void Watchy7SEG::drawDate()
     display.drawBitmap(71, 129, getDdImg(f), 16, 25, FRONT_COLOR);
 }
 
-void Watchy7SEG::drawSteps()
+void WatchyStarField::drawSteps()
 {
     // reset step counter at midnight
     if (currentTime.Hour == 0 && currentTime.Minute == 0)
@@ -170,7 +170,7 @@ void Watchy7SEG::drawSteps()
     display.drawBitmap(92, 165, getDdImg(e), 16, 25, FRONT_COLOR);
 }
 
-void Watchy7SEG::drawBattery()
+void WatchyStarField::drawBattery()
 {
     int8_t batteryLevel = 0;
     float VBAT = getBatteryVoltage();
@@ -210,7 +210,7 @@ void Watchy7SEG::drawBattery()
     display.fillRect(155, 169, batteryLevel, 15, FRONT_COLOR);
 }
 
-void Watchy7SEG::drawMoon() {
+void WatchyStarField::drawMoon() {
     moonData_t moon;                        // variable to receive the data
 
     int year = currentTime.Year + 1970;
@@ -272,7 +272,7 @@ void Watchy7SEG::drawMoon() {
     }
 }
 
-void Watchy7SEG::drawSun() {
+void WatchyStarField::drawSun() {
     weatherData currentWeather = getWeatherData();
     int tz = settings.gmtOffset / 3600l + 1; // + 1 for DST - TODO discover this somehow
 
@@ -323,7 +323,7 @@ void Watchy7SEG::drawSun() {
     display.drawBitmap(132, 137, getNumImg(h), 3, 5, FRONT_COLOR);
 }
 
-const unsigned char *Watchy7SEG::getFdImg(int8_t digit)
+const unsigned char *WatchyStarField::getFdImg(int8_t digit)
 {
     switch(digit)
     {
@@ -350,7 +350,7 @@ const unsigned char *Watchy7SEG::getFdImg(int8_t digit)
     }
 }
 
-const unsigned char *Watchy7SEG::getDdImg(int8_t digit)
+const unsigned char *WatchyStarField::getDdImg(int8_t digit)
 {
     switch(digit)
     {
@@ -377,7 +377,7 @@ const unsigned char *Watchy7SEG::getDdImg(int8_t digit)
     }
 }
 
-const unsigned char *Watchy7SEG::getNumImg(int8_t digit)
+const unsigned char *WatchyStarField::getNumImg(int8_t digit)
 {
     switch(digit)
     {

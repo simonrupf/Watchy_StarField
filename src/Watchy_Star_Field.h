@@ -1,12 +1,12 @@
-#ifndef WATCHY_7_SEG_H
-#define WATCHY_7_SEG_H
+#ifndef WATCHY_STAR_FIELD_H
+#define WATCHY_STAR_FIELD_H
 #include <math.h>
 #include <Watchy.h>
 #include "moonPhaser.h"
 #include "Seven_Segment10pt7b.h"
 #include "icons.h"
 
-class Watchy7SEG : public Watchy{
+class WatchyStarField : public Watchy{
     using Watchy::Watchy;
     public:
         void drawWatchFace();
