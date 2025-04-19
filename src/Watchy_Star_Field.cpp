@@ -66,9 +66,9 @@ void WatchyStarField::drawTime()
 
     if (HOUR_SET == false)
     {
+        display.fillRect(7, 60, 25, 9, BACKG_COLOR);
         if (sh >= 12)
         {
-            display.fillRect(7, 60, 25, 9, FRONT_COLOR);
             display.drawBitmap(7, 60, pm, 25, 9, FRONT_COLOR);
 
             if (sh > 12)
@@ -76,9 +76,8 @@ void WatchyStarField::drawTime()
                 sh -= 12;
             }
         }
-        else if (sh < 12)
+        else
         {
-            display.fillRect(7, 60, 25, 9, BACKG_COLOR);
             display.drawBitmap(7, 60, am, 25, 9, FRONT_COLOR);
         }
     }
@@ -240,6 +239,18 @@ void WatchyStarField::drawSun() {
     int sh = currentWeather.sunset.Hour + tz;
     int sm = currentWeather.sunset.Minute;
 
+    const int sr = rh * 60 + rm;
+    const int ss = sh * 60 + sm;
+
+    long k = (currentTime.Hour + tz - 1) * 60 + currentTime.Minute;
+    int tk = (k - sr) * 60 / (ss - sr);
+    if (k > ss)
+        tk = 60;
+    else if (k < sr)
+        tk = 0;
+    display.drawBitmap(110, 132 - tk, arr, 3, 5, FRONT_COLOR);
+
+    // only adjust 12h/24h display after calculating arrow offset
     if (HOUR_SET == false) {
         if (rh > 12)
         {
@@ -251,17 +262,6 @@ void WatchyStarField::drawSun() {
             sh -= 12;
         }
     }
-
-    const int sr = rh * 60 + rm;
-    const int ss = sh * 60 + sm;
-
-    long k = (currentTime.Hour + tz - 1) * 60 + currentTime.Minute;
-    int tk = (k - sr) * 60 / (ss - sr);
-    if (k > ss)
-        tk = 60;
-    else if (k < sr)
-        tk = 0;
-    display.drawBitmap(110, 132 - tk, arr, 3, 5, FRONT_COLOR);
 
     const int8_t a = sh >= 10 ? sh / 10 : 0;
     const int8_t b = sh % 10;
